@@ -25,7 +25,14 @@ To use this board, please select your board in the Arduino code the following li
 
 ## Steps
 
-* Create your Image Classification model using [Edge Impulse](https://edgeimpulse.com)
+* Create your Image Classification model using [Edge Impulse](https://edgeimpulse.com).
+
+*Due to the board limitations, you may need to train your model with 48x48 images and use the MobileNetV2 0.05:*
+
+![creat-impulse](Documentation/create-impulse.png)
+
+
+
 * Download the Arduino library under the `Deployment` tab in the Edge Impulse studio
 ![dl-arduino-lib](Documentation/deployment-tab.png)
 
@@ -44,7 +51,7 @@ To use this board, please select your board in the Arduino code the following li
 
 ### Advanced Image Classification Example
 
-*Note: Here we use the ESP SDK to resize the image in RGB888 format using the bilinear interpolation technique. You can see the funtion declaration [on Espressif's Github repository](https://github.com/espressif/arduino-esp32/blob/master/tools/sdk/esp32/include/esp-face/image_util/include/image_util.h#L335).
+*Note: Here we use the ESP SDK to resize the image in RGB888 format using the bilinear interpolation technique. You can see the funtion declaration [on Espressif's Github repository](https://github.com/espressif/arduino-esp32/blob/master/tools/sdk/esp32/include/esp-face/image_util/include/image_util.h#L335)*.
 
 * Open the `Basic-Image-Classification.ino` file under the `/Advanced-Image-Classification` folder.
 * Set your WIFI credentials
