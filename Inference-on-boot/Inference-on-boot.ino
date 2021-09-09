@@ -42,6 +42,7 @@ int pictureNumber = 0;
 dl_matrix3du_t *resized_matrix = NULL;
 size_t out_len = EI_CLASSIFIER_INPUT_WIDTH * EI_CLASSIFIER_INPUT_HEIGHT;
 ei_impulse_result_t result = {0};
+String label = "uncertain";
 bool sd_card = true;
 
 void setup() {
@@ -174,11 +175,10 @@ void take_picture()
 
   // --- Convert back the resized RGB888 frame to JPG to save on SD card ---
 
-  Serial.println("Converting ei_buf to JPG...");
+  Serial.println("Converting resized RGB888 frame to JPG...");
   time_start = esp_timer_get_time();
-  // Allocate out_matrix buffer
-  dl_matrix3du_t *jpg_out_matrix = dl_matrix3du_alloc(1, fb->width, fb->height, 3);
-  s = fmt2jpg(resized_matrix->item, out_len, EI_CLASSIFIER_INPUT_WIDTH, EI_CLASSIFIER_INPUT_HEIGHT, PIXFORMAT_RGB888, 10, &jpg_out_matrix->item, &out_len);
+  uint8_t * _jpg_buf = NULL;
+  fmt2jpg(resized_matrix->item, out_len, EI_CLASSIFIER_INPUT_WIDTH, EI_CLASSIFIER_INPUT_HEIGHT, PIXFORMAT_RGB888, 10, &_jpg_buf, &out_len);
   time_end = esp_timer_get_time();
   Serial.printf("Done in %ums\n", (uint32_t)((time_end - time_start) / 1000));
 
@@ -189,7 +189,8 @@ void take_picture()
   //--- Save resized Picture ---
   if (sd_card) {
     // Path where new picture will be saved in SD Card
-    String path = "/" + String(pictureNumber) + "_resized" + ".jpg";
+    String path = "/" + String(pictureNumber) + "_predicted_" + String(label) + ".jpg";
+    label = "uncertain";
 
     fs::FS &fs = SD_MMC;
     Serial.printf("Picture file name: %s\n", path.c_str());
@@ -199,14 +200,15 @@ void take_picture()
       Serial.println("Failed to open file in writing mode");
     }
     else {
-      file.write(jpg_out_matrix->item, out_len); // payload (image), payload length
+      file.write(_jpg_buf, out_len); // payload (image), payload length
       Serial.printf("Saved file to path: %s\n", path.c_str());
     }
     file.close();
   }
 
   // --- Free memory ---
-  dl_matrix3du_free(jpg_out_matrix);
+  free(_jpg_buf);
+  _jpg_buf = NULL;
 
 
   // --- Turns off the ESP32-CAM white on-board LED (flash) connected to GPIO 4 ---
@@ -271,7 +273,11 @@ void classify()
             result.timing.dsp, result.timing.classification, result.timing.anomaly);
   for (size_t ix = 0; ix < EI_CLASSIFIER_LABEL_COUNT; ix++) {
     ei_printf("    %s: \t%f\r\n", result.classification[ix].label, result.classification[ix].value);
+    if(result.classification[ix].value > 0.8){
+      label = String(result.classification[ix].label);
+    }
   }
+  
 #if EI_CLASSIFIER_HAS_ANOMALY == 1
   ei_printf("    anomaly score: %f\r\n", result.anomaly);
 #endif

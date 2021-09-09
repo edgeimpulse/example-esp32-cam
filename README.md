@@ -27,18 +27,16 @@ To use this board, please select your board in the Arduino code the following li
 
 * Create your Image Classification model using [Edge Impulse](https://edgeimpulse.com).
 
-*Due to the board limitations, you may need to train your model with 48x48 images and use the MobileNetV2 0.05:*
+*Due to the board limitations, you may need to train your model with 96x96 images and use the MobileNetV1 0.01:*
 
 ![creat-impulse](Documentation/create-impulse.png)
-
-
 
 * Download the Arduino library under the `Deployment` tab in the Edge Impulse studio
 ![dl-arduino-lib](Documentation/deployment-tab.png)
 
 ### Basic Image Classification Example
 
-*Note: This project does not do a proper resize of the image capture but cutout the data*
+*Note: On Sept 9th 2021, the issue predicting always the same classes has been fixed*
 
 * Open the `Basic-Image-Classification.ino` file under the `/Basic-Image-Classification` folder.
 * Import the .zip library you have downloaded from Edge Impulse Studio
@@ -49,9 +47,13 @@ To use this board, please select your board in the Arduino code the following li
 ![serial-monitor](Documentation/open-serial.png)
 ![inference](Documentation/inference.png)
 
-### Advanced Image Classification Example
+### Advanced Image Classification Example (Deprecated)
 
-*Note: Here we use the ESP SDK to resize the image in RGB888 format using the bilinear interpolation technique. You can see the funtion declaration [on Espressif's Github repository](https://github.com/espressif/arduino-esp32/blob/master/tools/sdk/esp32/include/esp-face/image_util/include/image_util.h#L335)*.
+*Note: 
+Deprecated since Basic Example has been fixed and also support bilinear interpolation technique to resize the frame.*
+
+*Note 2: 
+Here we use the ESP SDK to resize the image in RGB888 format using the bilinear interpolation technique. You can see the funtion declaration [on Espressif's Github repository](https://github.com/espressif/arduino-esp32/blob/master/tools/sdk/esp32/include/esp-face/image_util/include/image_util.h#L335)*.
 
 * Open the `Basic-Image-Classification.ino` file under the `/Advanced-Image-Classification` folder.
 * Set your WIFI credentials
