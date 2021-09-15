@@ -402,7 +402,7 @@ const uint8_t index_custom_html[] = R"=====(
                 <input type="checkbox" id="nav-toggle-cb" checked="checked">
                 <nav id="menu">
                     <div class="input-group" id="framesize-group">
-                        <label for="framesize">Resolution</label>
+                        <label for="framesize">Original Resolution</label>
                         <select id="framesize" class="default-action">
                             <option value="13">UXGA(1600x1200)</option>
                             <option value="12">SXGA(1280x1024)</option>
@@ -660,9 +660,13 @@ const uint8_t index_custom_html[] = R"=====(
                         o.onclick = () => { p(), e(k) }, 
                         m.onclick = () => { const B = 'Stop Stream' === m.innerHTML; B ? p() : q() },
                         n.onclick = () => { p(), j.src = `${c}/inference?_cb=${Date.now()}`, f(k), 
-                        j.addEventListener('load', (event) => {
-                        console.log('image has been loaded!');
-                        httpReq('inference-results')});
+                            j.addEventListener('load', (event) => {
+                                if(j.complete){
+                                    console.log('image has been loaded!');
+                                    httpReq('inference-results');
+                                   
+                                }
+                            }, { once: true });
                         },
                         status.onclick = () => { httpReq('status') };
                     const r = document.getElementById('agc'),
