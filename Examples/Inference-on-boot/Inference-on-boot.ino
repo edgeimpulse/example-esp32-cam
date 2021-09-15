@@ -127,7 +127,7 @@ void take_picture()
     pictureNumber = EEPROM.read(0) + 1;
 
     // Path where new picture will be saved in SD Card
-    String path = "/" + String(pictureNumber) + "_original" + ".jpg";
+    String path = "/original_" + String(pictureNumber) + ".jpg";
 
     fs::FS &fs = SD_MMC;
     Serial.printf("Picture file name: %s\n", path.c_str());
@@ -189,7 +189,7 @@ void take_picture()
   //--- Save resized Picture ---
   if (sd_card) {
     // Path where new picture will be saved in SD Card
-    String path = "/" + String(pictureNumber) + "_predicted_" + String(label) + ".jpg";
+    String path = "/" + String(label) + ".predicted_" + String(pictureNumber) + ".jpg";
     label = "uncertain";
 
     fs::FS &fs = SD_MMC;
