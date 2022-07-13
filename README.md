@@ -1,6 +1,6 @@
 # [Deprecated] - ESP32 Cam and Edge Impulse
 
-_We officially released the support for the [ESP-EYE](https://docs.edgeimpulse.com/docs/development-platforms/officially-supported-mcu-targets/espressif-esp32) which uses ESP-IDF instead of Arduino. You can use other boards too by changing the pins definition and recompiling your firmware.
+_We officially released the support for the [ESP-EYE](https://docs.edgeimpulse.com/docs/development-platforms/officially-supported-mcu-targets/espressif-esp32) on April 27th 2022 which uses ESP-IDF instead of Arduino. You can use other boards too by changing the pins definition and recompiling your firmware.
 This repository is still working but there as there is no hardware acceleration available on the Arduino IDE esp32 board definition, we strongly suggest to use ESP-IDF._
 
 How to run custom inference on a ESP32 cam using Edge Impulse. 
