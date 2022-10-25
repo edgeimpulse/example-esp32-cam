@@ -71,16 +71,9 @@ void setup() {
   config.pin_reset = RESET_GPIO_NUM;
   config.xclk_freq_hz = 20000000;
   config.pixel_format = PIXFORMAT_JPEG;
-
-  if (psramFound()) {
-    config.frame_size = FRAMESIZE_QVGA; // FRAMESIZE_ + QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA
-    config.jpeg_quality = 10;
-    config.fb_count = 2;
-  } else {
-    config.frame_size = FRAMESIZE_QVGA;
-    config.jpeg_quality = 12;
-    config.fb_count = 1;
-  }
+  config.frame_size = FRAMESIZE_240X240;
+  config.jpeg_quality = 12;
+  config.fb_count = 1;
 
   // Init Camera
   esp_err_t err = esp_camera_init(&config);
@@ -261,25 +254,49 @@ void classify()
 
   Serial.println("Run classifier...");
   // Feed signal to the classifier
-  EI_IMPULSE_ERROR res = run_classifier(&signal, &result, false /* debug */);
 
-  // Returned error variable "res" while data object.array in "result"
-  ei_printf("run_classifier returned: %d\n", res);
-  if (res != 0)
-    return;
-
-  // print the predictions
-  ei_printf("Predictions (DSP: %d ms., Classification: %d ms., Anomaly: %d ms.): \n",
-            result.timing.dsp, result.timing.classification, result.timing.anomaly);
-  for (size_t ix = 0; ix < EI_CLASSIFIER_LABEL_COUNT; ix++) {
-    ei_printf("    %s: \t%f\r\n", result.classification[ix].label, result.classification[ix].value);
-    if(result.classification[ix].value > 0.8){
-      label = String(result.classification[ix].label);
-    }
-  }
+  // Run the classifier
+  ei_impulse_result_t result = { 0 };
   
+  EI_IMPULSE_ERROR res = run_classifier(&signal, &result, false /* debug */);
+    if (res != EI_IMPULSE_OK) {
+        ei_printf("ERR: Failed to run classifier (%d)\n", res);
+        return;
+    }
+
+    // print the predictions
+    ei_printf("Predictions (DSP: %d ms., Classification: %d ms., Anomaly: %d ms.): \n",
+                result.timing.dsp, result.timing.classification, result.timing.anomaly);
+#if EI_CLASSIFIER_OBJECT_DETECTION == 1
+    bool bb_found = result.bounding_boxes[0].value > 0;
+    for (size_t ix = 0; ix < EI_CLASSIFIER_OBJECT_DETECTION_COUNT; ix++) {
+        auto bb = result.bounding_boxes[ix];
+        if (bb.value == 0) {
+            continue;
+        }
+
+        ei_printf("    %s (", bb.label);
+        ei_printf_float(bb.value);
+        ei_printf(") [ x: %u, y: %u, width: %u, height: %u ]\n", bb.x, bb.y, bb.width, bb.height);
+    }
+
+    if (!bb_found) {
+        ei_printf("    No objects found\n");
+    }
+#else
+    for (size_t ix = 0; ix < EI_CLASSIFIER_LABEL_COUNT; ix++) {
+        ei_printf("    %s: ", result.classification[ix].label);
+        ei_printf_float(result.classification[ix].value);
+        ei_printf("\n");
+        if(result.classification[ix].value > 0.8){
+          label = String(result.classification[ix].label);
+        }
+    }
 #if EI_CLASSIFIER_HAS_ANOMALY == 1
-  ei_printf("    anomaly score: %f\r\n", result.anomaly);
+    ei_printf("    anomaly score: ");
+    ei_printf_float(result.anomaly);
+    ei_printf("\n");
+#endif
 #endif
 }
 
